@@ -1,19 +1,15 @@
 package com.griefcraft.util;
 
 
-import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCInfo;
 import com.griefcraft.scripting.ModuleLoader;
 import com.griefcraft.sql.Database;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,21 +34,6 @@ public class Updater {
     public final static String DEST_LIBRARY_FOLDER = "plugins/LWC/";
 
     /**
-     * File used for the distribution
-     */
-    public final static String DIST_FILE = "lwc/release/LWC.jar";
-
-    /**
-     * URL to the base update site
-     */
-    public final static String UPDATE_SITE = "http://griefcraft.com/bukkit/";
-
-    /**
-     * File used to obtain the latest version
-     */
-    public final static String VERSION_FILE = "lwc/VERSION";
-
-    /**
      * The latest LWC version
      */
     private double latestPluginVersion = 0.00;
@@ -75,20 +56,15 @@ public class Updater {
      * Check for dependencies
      */
     public void check() {
-        // account of dev builds or nonvalid builds
-        if (LWCInfo.VERSION == 0d) {
-            return;
-        }
-
         if (Database.DefaultType == Database.Type.SQLite) {
-            String[] shared = new String[]{DEST_LIBRARY_FOLDER + "lib/sqlite.jar", getFullNativeLibraryPath()};
+            String[] shared = new String[]{"lib/sqlite.jar", getFullNativeLibraryPath()};
 
             for (String path : shared) {
                 File file = new File(path);
 
                 if (!file.exists() && !file.isDirectory()) {
-                    UpdaterFile updaterFile = new UpdaterFile(UPDATE_SITE + "shared/" + path.replaceAll(DEST_LIBRARY_FOLDER, ""));
-                    updaterFile.setLocalLocation(path);
+                    UpdaterFile updaterFile = new UpdaterFile(path);
+                    updaterFile.setLocalLocation(DEST_LIBRARY_FOLDER + path);
 
                     if (!needsUpdating.contains(updaterFile)) {
                         needsUpdating.add(updaterFile);
@@ -96,49 +72,11 @@ public class Updater {
                 }
             }
         }
-
-        if (LWC.getInstance().getConfiguration().getBoolean("core.autoUpdate", false)) {
-            if (latestPluginVersion > LWCInfo.VERSION) {
-                logger.info("Update detected for LWC");
-                logger.info("Latest version: " + latestPluginVersion);
-            }
-        }
-    }
-
-    /**
-     * Check to see if the distribution is outdated
-     *
-     * @return
-     */
-    public boolean checkDist() {
-        check();
-
-        if (LWCInfo.VERSION == 0) {
-            return false;
-        }
-
-        if (latestPluginVersion > LWCInfo.VERSION) {
-            UpdaterFile updaterFile = new UpdaterFile(UPDATE_SITE + DIST_FILE);
-            updaterFile.setLocalLocation("plugins/LWC.jar");
-
-            needsUpdating.add(updaterFile);
-
-            try {
-                update();
-                logger.info("Updated successful");
-                return true;
-            } catch (Exception e) {
-                logger.info("Update failed: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        return false;
     }
 
     public void downloadConfig(String config) {
         File file = new File(ModuleLoader.ROOT_PATH + config); // where to save to
-        UpdaterFile updaterFile = new UpdaterFile(Updater.UPDATE_SITE + "lwc/skel/" + config);
+        UpdaterFile updaterFile = new UpdaterFile(config);
 
         updaterFile.setLocalLocation(file.getPath());
         download(updaterFile);
@@ -181,11 +119,11 @@ public class Updater {
         String arch = System.getProperty("os.arch").toLowerCase();
 
         if (osname.contains("windows")) {
-            return DEST_LIBRARY_FOLDER + "lib/native/Windows/" + arch + "/";
+            return "lib/native/Windows/" + arch + "/";
         } else if (osname.contains("mac")) {
-            return DEST_LIBRARY_FOLDER + "lib/native/Mac/" + arch + "/";
+            return "lib/native/Mac/" + arch + "/";
         } else { /* We assume linux/unix */
-            return DEST_LIBRARY_FOLDER + "lib/native/Linux/" + arch + "/";
+            return "lib/native/Linux/" + arch + "/";
         }
     }
 
@@ -198,25 +136,7 @@ public class Updater {
         class Background_Check_Thread implements Runnable {
             public void run() {
                 try {
-                    URL url = new URL(UPDATE_SITE + VERSION_FILE);
-
-                    InputStream inputStream = url.openStream();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    // load up them versions!
-                    latestPluginVersion = Double.parseDouble(bufferedReader.readLine());
-
-                    bufferedReader.close();
-                } catch (Exception e) {
-                }
-
-                try {
-                    if (LWC.getInstance().getConfiguration().getBoolean("core.autoUpdate", false)) {
-                        checkDist();
-                    } else {
-                        check();
-                    }
-
+                    check();
                     update();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -244,7 +164,7 @@ public class Updater {
         /*
            * Make the folder hierarchy if needed
            */
-        File folder = new File(getOSSpecificFolder());
+        File folder = new File(DEST_LIBRARY_FOLDER + getOSSpecificFolder());
         folder.mkdirs();
         folder = new File(DEST_LIBRARY_FOLDER + "lib/");
         folder.mkdirs();
@@ -254,20 +174,15 @@ public class Updater {
 
             while (iterator.hasNext()) {
                 UpdaterFile item = iterator.next();
-
-                String fileName = item.getRemoteLocation();
-                fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-
-                URL url = new URL(item.getRemoteLocation());
                 File file = new File(item.getLocalLocation());
 
-                logger.info("Downloading: " + item.getRemoteLocation());
+                logger.info("Initializing: " + item.getLocalLocation());
 
                 if (file.exists()) {
-                    file.delete();
+                    continue;
                 }
 
-                InputStream inputStream = url.openStream();
+                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(item.getRemoteLocation());
                 OutputStream outputStream = new FileOutputStream(file);
 
                 saveTo(inputStream, outputStream);

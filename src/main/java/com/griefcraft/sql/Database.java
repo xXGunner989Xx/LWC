@@ -26,7 +26,7 @@ public abstract class Database {
 
     public enum Type {
         MySQL("mysql.jar"), //
-        SQLite("sqlite.jar"), //
+        SQLite("lib/sqlite.jar"), //
         NONE("nil"); //
 
         private String driver;

@@ -32,13 +32,7 @@ public class AdminUpdate extends JavaModule {
         Updater updater = lwc.getPlugin().getUpdater();
         updater.loadVersions(false);
 
-        if (updater.checkDist()) {
-            lwc.sendLocale(sender, "protection.admin.update.updated", "version", updater.getLatestPluginVersion());
-        } else {
-            lwc.sendLocale(sender, "protection.admin.update.noupdate");
-        }
-
-        return;
+        lwc.sendLocale(sender, "protection.admin.update.noupdate");
     }
 
 }
