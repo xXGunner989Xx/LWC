@@ -1,10 +1,14 @@
 package com.griefcraft.listeners;
 
+import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
+
+import java.util.List;
 
 public class LWCEntityListener extends EntityListener {
 
@@ -16,7 +20,7 @@ public class LWCEntityListener extends EntityListener {
     /**
      * Blast radius for TNT / Creepers
      */
-    public final static int BLAST_RADIUS = 4;
+    public final static int BLAST_RADIUS = 5;
 
     public LWCEntityListener(LWCPlugin plugin) {
         this.plugin = plugin;
@@ -28,14 +32,29 @@ public class LWCEntityListener extends EntityListener {
             return;
         }
 
-        boolean ignoreExplosions = plugin.getLWC().getConfiguration().getBoolean("core.ignoreExplosions", false);
-
+        boolean hasProtection = false;
         for (Block block : event.blockList()) {
-            Protection protection = plugin.getLWC().getPhysicalDatabase().loadProtection(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
+            if (LWC.getInstance().isProtectable(block)) {
+                hasProtection = true;
+                break;
+            }
+        }
 
-            if (protection != null) {
+        if (hasProtection) {
+            boolean ignoreExplosions = plugin.getLWC().getConfiguration().getBoolean("core.ignoreExplosions", false);
+
+            Entity en = event.getEntity();
+            List<Protection> protections = plugin.getLWC().getPhysicalDatabase().loadProtections(
+                    en.getWorld().getName(),
+                    en.getLocation().getBlockX(),
+                    en.getLocation().getBlockY(),
+                    en.getLocation().getBlockZ(), BLAST_RADIUS);
+
+            if (!protections.isEmpty()) {
                 if (ignoreExplosions) {
-                    protection.remove();
+                    for (Protection protection : protections) {
+                        protection.remove();
+                    }
                 } else {
                     event.setCancelled(true);
                 }
