@@ -1752,6 +1752,10 @@ public class LWC {
             name = "furnace";
         }
 
+        if (name.contains("diode")) {
+            name = "diode";
+        }
+
         if (name.endsWith("_")) {
             name = name.substring(0, name.length() - 1);
         }

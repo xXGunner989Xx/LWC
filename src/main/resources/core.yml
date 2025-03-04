@@ -125,10 +125,28 @@ protections:
             autoRegister: private
         wooden_door:
             enabled: true
-        iron_door:
-            enabled: true
+            autoRegister: off
         trap_door:
             enabled: true
+            autoRegister: off
+        cake:
+            enabled: true
+            autoRegister: off
+        note:
+            enabled: true
+            autoRegister: off
+        jukebox:
+            enabled: true
+            autoRegister: off
+        diode:
+            enabled: true
+            autoRegister: off
+        stone_button:
+            enabled: true
+            autoRegister: off
+        lever:
+            enabled: true
+            autoRegister: off
 
 modes:
     droptransfer:
