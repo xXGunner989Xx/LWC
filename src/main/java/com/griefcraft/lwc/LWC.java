@@ -1782,10 +1782,18 @@ public class LWC {
         String value = configuration.getString("protections." + node);
 
         for (String name : names) {
-            String temp = configuration.getString("protections.blocks." + name + "." + node);
 
+            // Check first the block protection, then the entity protection. Break from loop once we see a valid entry in config
+            String temp = configuration.getString("protections.blocks." + name + "." + node);
             if (temp != null && !temp.isEmpty()) {
                 value = temp;
+                break;
+            }
+
+            temp = configuration.getString("protections.entities." + name + "." + node);
+            if (temp != null && !temp.isEmpty()) {
+                value = temp;
+                break;
             }
         }
 

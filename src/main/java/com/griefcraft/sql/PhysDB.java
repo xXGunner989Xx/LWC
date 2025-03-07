@@ -295,6 +295,58 @@ public class PhysDB extends Database {
                 protections.add(column);
             }
 
+            Table entityProtections = new Table(this, "entityprotections");
+            {
+                column = new Column("UUID");
+                column.setType("VARCHAR(36)"); // UUID is 36 char
+                column.setPrimary(true);
+                entityProtections.add(column);
+
+                column = new Column("type");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("flags");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("entityId");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("world");
+                column.setType("VARCHAR(255)");
+                protections.add(column);
+
+                column = new Column("owner");
+                column.setType("VARCHAR(255)");
+                protections.add(column);
+
+                column = new Column("password");
+                column.setType("VARCHAR(255)");
+                protections.add(column);
+
+                column = new Column("x");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("y");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("z");
+                column.setType("INTEGER");
+                protections.add(column);
+
+                column = new Column("date");
+                column.setType("VARCHAR(255)");
+                protections.add(column);
+
+                column = new Column("last_accessed");
+                column.setType("INTEGER");
+                protections.add(column);
+            }
+
             Table rights = new Table(this, "rights");
             {
                 column = new Column("id");
@@ -381,6 +433,7 @@ public class PhysDB extends Database {
             }
 
             protections.execute();
+            entityProtections.execute();
             rights.execute();
             menuStyles.execute();
             history.execute();

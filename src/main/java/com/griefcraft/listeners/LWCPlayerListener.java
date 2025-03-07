@@ -19,11 +19,7 @@ import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -86,6 +82,16 @@ public class LWCPlayerListener extends PlayerListener {
 
         LWC lwc = plugin.getLWC();
         Player player = event.getPlayer();
+
+        // for some reason two events get fired very rapidly so just take the first instance
+        if (event.getMaterial().equals(Material.STORAGE_MINECART)) {
+            if (!lwc.hasPermission(player, "lwc.protect") && lwc.hasPermission(player, "lwc.deny") && !lwc.isAdmin(player) && !lwc.isMod(player)) {
+                lwc.sendLocale(player, "protection.interact.error.blocked");
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         Block clickedBlock = event.getClickedBlock();
         Location location = clickedBlock.getLocation();
 

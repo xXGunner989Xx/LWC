@@ -3,12 +3,16 @@ package com.griefcraft.util;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleCreateEvent;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UpdateThread implements Runnable {
@@ -47,7 +51,6 @@ public class UpdateThread implements Runnable {
 
     public UpdateThread(LWC lwc) {
         this.lwc = lwc;
-
         running = true;
         lastUpdate = System.currentTimeMillis();
 
@@ -91,6 +94,9 @@ public class UpdateThread implements Runnable {
 
     public void run() {
         while (running) {
+            lwc.getPlugin().getServer().broadcastMessage("loop iteration");
+            lwc.getPlugin().getServer().broadcastMessage(Integer.toString(MinecartEventProcessor.vehicleCreateEventQueue.size()));
+            lwc.getPlugin().getServer().broadcastMessage(Integer.toString(MinecartEventProcessor.playerInteractEventQueue.size()));
             if (flush) {
                 _flush();
                 continue;

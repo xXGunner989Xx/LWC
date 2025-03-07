@@ -1,9 +1,6 @@
 package com.griefcraft.lwc;
 
-import com.griefcraft.listeners.LWCBlockListener;
-import com.griefcraft.listeners.LWCEntityListener;
-import com.griefcraft.listeners.LWCPlayerListener;
-import com.griefcraft.listeners.LWCServerListener;
+import com.griefcraft.listeners.*;
 import com.griefcraft.scripting.Module.Result;
 import com.griefcraft.scripting.ModuleLoader.Event;
 import com.griefcraft.scripting.event.LWCCommandEvent;
@@ -24,6 +21,7 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.event.vehicle.VehicleListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Locale;
@@ -42,6 +40,11 @@ public class LWCPlugin extends JavaPlugin {
      * The entity listener
      */
     private EntityListener entityListener;
+
+    /**
+     * The vehicle listener
+     */
+    private VehicleListener vehicleListener;
 
     /**
      * The player listener
@@ -81,6 +84,7 @@ public class LWCPlugin extends JavaPlugin {
         playerListener = new LWCPlayerListener(this);
         blockListener = new LWCBlockListener(this);
         entityListener = new LWCEntityListener(this);
+        vehicleListener = new LWCVehicleListener(this);
         serverListener = new LWCServerListener(this);
 
         /*
@@ -392,6 +396,9 @@ public class LWCPlugin extends JavaPlugin {
 
         /* Entity events */
         registerEvent(entityListener, Type.ENTITY_EXPLODE);
+
+        /* Vehicle events */
+        registerEvent(vehicleListener, Type.VEHICLE_CREATE);
 
         /* Block events */
         registerEvent(blockListener, Type.BLOCK_BREAK);
