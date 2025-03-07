@@ -94,9 +94,6 @@ public class UpdateThread implements Runnable {
 
     public void run() {
         while (running) {
-            lwc.getPlugin().getServer().broadcastMessage("loop iteration");
-            lwc.getPlugin().getServer().broadcastMessage(Integer.toString(MinecartEventProcessor.vehicleCreateEventQueue.size()));
-            lwc.getPlugin().getServer().broadcastMessage(Integer.toString(MinecartEventProcessor.playerInteractEventQueue.size()));
             if (flush) {
                 _flush();
                 continue;

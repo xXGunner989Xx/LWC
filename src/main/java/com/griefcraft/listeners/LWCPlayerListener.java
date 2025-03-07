@@ -9,6 +9,7 @@ import com.griefcraft.scripting.ModuleLoader.Event;
 import com.griefcraft.scripting.event.LWCBlockInteractEvent;
 import com.griefcraft.scripting.event.LWCDropItemEvent;
 import com.griefcraft.scripting.event.LWCProtectionInteractEvent;
+import com.griefcraft.util.MinecartEventProcessor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -83,13 +84,14 @@ public class LWCPlayerListener extends PlayerListener {
         LWC lwc = plugin.getLWC();
         Player player = event.getPlayer();
 
-        // for some reason two events get fired very rapidly so just take the first instance
+        // TODO: player can click with minecart but it does not always correspond with a vehicle create event (ex. left clicking with minecart in hand) so need to make sure only to use relevant events
         if (event.getMaterial().equals(Material.STORAGE_MINECART)) {
             if (!lwc.hasPermission(player, "lwc.protect") && lwc.hasPermission(player, "lwc.deny") && !lwc.isAdmin(player) && !lwc.isMod(player)) {
                 lwc.sendLocale(player, "protection.interact.error.blocked");
                 event.setCancelled(true);
                 return;
             }
+            MinecartEventProcessor.addToEventQueue(event);
         }
 
         Block clickedBlock = event.getClickedBlock();

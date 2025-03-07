@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.StorageMinecart;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleListener;
-import static com.griefcraft.util.MinecartEventProcessor.vehicleCreateEventQueue;
+import static com.griefcraft.util.MinecartEventProcessor.addToEventQueue;
 
 public class LWCVehicleListener extends VehicleListener {
 
@@ -38,6 +38,6 @@ public class LWCVehicleListener extends VehicleListener {
             return;
         }
 
-        vehicleCreateEventQueue.add(event);
+        addToEventQueue(event);
     }
 }
