@@ -21,6 +21,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.StorageMinecart;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -232,7 +233,11 @@ public class ModuleLoader {
                             break;
 
                         case REGISTER_PROTECTION:
-                            temp = module.onRegisterProtection(lwc, (Player) args[0], (Block) args[1]);
+                            if (args[1] instanceof Block) {
+                                temp = module.onRegisterProtection(lwc, (Player) args[0], (Block) args[1]);
+                            } else if (args[1] instanceof StorageMinecart) {
+                                temp = module.onRegisterProtection(lwc, (Player) args[0], (StorageMinecart) args[1]);
+                            }
                             break;
 
                         case ACCESS_PROTECTION:

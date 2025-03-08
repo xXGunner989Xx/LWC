@@ -5,12 +5,7 @@ import com.griefcraft.scripting.Module.Result;
 import com.griefcraft.scripting.ModuleLoader.Event;
 import com.griefcraft.scripting.event.LWCCommandEvent;
 import com.griefcraft.sql.Database;
-import com.griefcraft.util.Colors;
-import com.griefcraft.util.LWCResourceBundle;
-import com.griefcraft.util.LocaleClassLoader;
-import com.griefcraft.util.StringUtils;
-import com.griefcraft.util.UTF8Control;
-import com.griefcraft.util.Updater;
+import com.griefcraft.util.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -81,6 +76,7 @@ public class LWCPlugin extends JavaPlugin {
 
         updater = new Updater();
         lwc = new LWC(this);
+        MinecartEventProcessor.initInstance(this);
         playerListener = new LWCPlayerListener(this);
         blockListener = new LWCBlockListener(this);
         entityListener = new LWCEntityListener(this);

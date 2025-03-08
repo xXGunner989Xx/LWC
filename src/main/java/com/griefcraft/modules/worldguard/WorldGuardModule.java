@@ -9,6 +9,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -37,6 +38,10 @@ public class WorldGuardModule extends JavaModule {
         }
     }
 
+    @Override
+    public Result onRegisterProtection(LWC lwc, Player player, Minecart minecart) {
+        return onRegisterProtection(lwc, player, minecart.getLocation().getBlock());
+    }
     @Override
     public Result onRegisterProtection(LWC lwc, Player player, Block block) {
         if (worldGuard == null) {

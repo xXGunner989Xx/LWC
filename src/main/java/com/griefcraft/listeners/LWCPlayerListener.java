@@ -3,12 +3,11 @@ package com.griefcraft.listeners;
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
+import com.griefcraft.model.ProtectionTypes;
 import com.griefcraft.scripting.Module;
 import com.griefcraft.scripting.Module.Result;
 import com.griefcraft.scripting.ModuleLoader.Event;
-import com.griefcraft.scripting.event.LWCBlockInteractEvent;
-import com.griefcraft.scripting.event.LWCDropItemEvent;
-import com.griefcraft.scripting.event.LWCProtectionInteractEvent;
+import com.griefcraft.scripting.event.*;
 import com.griefcraft.util.MinecartEventProcessor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Rails;
 
 import java.util.List;
 
@@ -31,9 +31,11 @@ public class LWCPlayerListener extends PlayerListener {
      * The plugin instance
      */
     private LWCPlugin plugin;
+    private MinecartEventProcessor minecartEventProcessor;
 
     public LWCPlayerListener(LWCPlugin plugin) {
         this.plugin = plugin;
+        this.minecartEventProcessor = MinecartEventProcessor.getInstance();
     }
 
     @Override
@@ -84,16 +86,6 @@ public class LWCPlayerListener extends PlayerListener {
         LWC lwc = plugin.getLWC();
         Player player = event.getPlayer();
 
-        // TODO: player can click with minecart but it does not always correspond with a vehicle create event (ex. left clicking with minecart in hand) so need to make sure only to use relevant events
-        if (event.getMaterial().equals(Material.STORAGE_MINECART)) {
-            if (!lwc.hasPermission(player, "lwc.protect") && lwc.hasPermission(player, "lwc.deny") && !lwc.isAdmin(player) && !lwc.isMod(player)) {
-                lwc.sendLocale(player, "protection.interact.error.blocked");
-                event.setCancelled(true);
-                return;
-            }
-            MinecartEventProcessor.addToEventQueue(event);
-        }
-
         Block clickedBlock = event.getClickedBlock();
         Location location = clickedBlock.getLocation();
 
@@ -103,6 +95,28 @@ public class LWCPlayerListener extends PlayerListener {
 
         Material material = block.getType();
 
+        // Hacking around player interact event to track minecart place events
+        // Minecarts can only be placed on rails, so check that we are right-clicking a rail block
+        // for some reason two events get fired here; no idea why but just going to handle the first event
+        if (clickedBlock.getType() != null && clickedBlock.getType().getData() != null &&
+                event.getAction() == Action.RIGHT_CLICK_BLOCK &&
+                player.getItemInHand().getType().equals(Material.STORAGE_MINECART) &&
+                Rails.class.isAssignableFrom(clickedBlock.getType().getData())
+        ) {
+            if (!lwc.hasPermission(player, "lwc.protect") && lwc.hasPermission(player, "lwc.deny") && !lwc.isAdmin(player) && !lwc.isMod(player)) {
+                lwc.sendLocale(player, "protection.interact.error.blocked");
+                event.setCancelled(true);
+                return;
+            }
+            material = player.getItemInHand().getType();
+            // The minecart must be protectable
+            if (!lwc.isProtectable(material)) {
+                return;
+            }
+
+            minecartEventProcessor.addToEventQueue(event);
+        }
+        
         // Prevent players with lwc.deny from interacting
         if (block.getState() instanceof ContainerBlock) {
             if (!lwc.hasPermission(player, "lwc.protect") && lwc.hasPermission(player, "lwc.deny") && !lwc.isAdmin(player) && !lwc.isMod(player)) {

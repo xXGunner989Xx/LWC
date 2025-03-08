@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.StorageMinecart;
 
 public class LimitsModule extends JavaModule {
 
@@ -215,10 +216,13 @@ public class LimitsModule extends JavaModule {
         LWC lwc = event.getLWC();
         Player player = event.getPlayer();
         Block block = event.getBlock();
+        StorageMinecart minecart = event.getMinecart();
 
-        if (hasReachedLimit(player, block)) {
+        if (block != null && hasReachedLimit(player, block)) {
             lwc.sendLocale(player, "protection.exceeded");
             event.setCancelled(true);
+        } else if (minecart != null) {
+            //TODO: check limits for minecart
         }
     }
 

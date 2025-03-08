@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class PhysDB extends Database {
 
@@ -297,54 +298,55 @@ public class PhysDB extends Database {
 
             Table entityProtections = new Table(this, "entityprotections");
             {
-                column = new Column("UUID");
-                column.setType("VARCHAR(36)"); // UUID is 36 char
+                column = new Column("id");
+                column.setType("INTEGER");
                 column.setPrimary(true);
                 entityProtections.add(column);
 
                 column = new Column("type");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("flags");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
 
-                column = new Column("entityId");
-                column.setType("INTEGER");
-                protections.add(column);
+                column = new Column("entityUUID");
+                column.setType("VARCHAR(36)"); // UUID is 36 char
+                column.setUnique(true);
+                entityProtections.add(column);
 
                 column = new Column("world");
                 column.setType("VARCHAR(255)");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("owner");
                 column.setType("VARCHAR(255)");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("password");
                 column.setType("VARCHAR(255)");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("x");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("y");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("z");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("date");
                 column.setType("VARCHAR(255)");
-                protections.add(column);
+                entityProtections.add(column);
 
                 column = new Column("last_accessed");
                 column.setType("INTEGER");
-                protections.add(column);
+                entityProtections.add(column);
             }
 
             Table rights = new Table(this, "rights");
@@ -914,7 +916,7 @@ public class PhysDB extends Database {
     }
 
     /**
-     * Register a protection
+     * Register a block protection
      *
      * @param blockId
      * @param type
@@ -930,6 +932,66 @@ public class PhysDB extends Database {
             PreparedStatement statement = prepare("INSERT INTO " + prefix + "protections (blockId, type, world, owner, password, x, y, z, date, last_accessed) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             statement.setInt(1, blockId);
+            statement.setInt(2, type);
+            statement.setString(3, world);
+            statement.setString(4, player);
+            statement.setString(5, data);
+            statement.setInt(6, x);
+            statement.setInt(7, y);
+            statement.setInt(8, z);
+            statement.setString(9, new Timestamp(new Date().getTime()).toString());
+            statement.setLong(10, System.currentTimeMillis() / 1000L);
+
+            statement.executeUpdate();
+
+            // remove the null protection from cache if it's in there
+            LWC.getInstance().getCaches().getProtections().remove(world + ":" + x + ":" + y + ":" + z);
+
+            // We need to create the initial transaction for this protection
+            // this transaction is viewable and modifiable during POST_REGISTRATION
+            Protection protection = loadProtection(world, x, y, z);
+
+            // if history logging is enabled, create it
+            if(LWC.getInstance().isHistoryEnabled() && protection != null) {
+                History transaction = protection.createHistoryObject();
+
+                transaction.setPlayer(player);
+                transaction.setType(History.Type.TRANSACTION);
+                transaction.setStatus(History.Status.ACTIVE);
+
+                // store the player that created the protection
+                transaction.addMetaData("creator=" + player);
+
+                // now sync the history object to the database
+                transaction.sync();
+            }
+
+            // return the newly created protection
+            return protection;
+        } catch (SQLException e) {
+            printException(e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Register a storage minecart protection
+     *
+     * @param entityUUID
+     * @param type
+     * @param world
+     * @param player
+     * @param data
+     * @param x
+     * @param y
+     * @param z
+     */
+    public Protection registerProtection(UUID entityUUID, int type, String world, String player, String data, int x, int y, int z) {
+        try {
+            PreparedStatement statement = prepare("INSERT INTO " + prefix + "entityprotections (entityUUID, type, world, owner, password, x, y, z, date, last_accessed) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+            statement.setString(1, entityUUID.toString());
             statement.setInt(2, type);
             statement.setString(3, world);
             statement.setString(4, player);

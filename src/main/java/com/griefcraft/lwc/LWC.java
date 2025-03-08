@@ -50,10 +50,7 @@ import com.griefcraft.scripting.event.LWCSendLocaleEvent;
 import com.griefcraft.sql.Database;
 import com.griefcraft.sql.MemDB;
 import com.griefcraft.sql.PhysDB;
-import com.griefcraft.util.Colors;
-import com.griefcraft.util.Performance;
-import com.griefcraft.util.StringUtils;
-import com.griefcraft.util.UpdateThread;
+import com.griefcraft.util.*;
 import com.griefcraft.util.config.Configuration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -162,7 +159,7 @@ public class LWC {
         if (instance == null) {
             instance = this;
         }
-
+        
         configuration = Configuration.load("core.yml");
         moduleLoader = new ModuleLoader();
         caches = new CacheSet();

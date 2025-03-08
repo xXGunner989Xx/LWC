@@ -89,6 +89,11 @@ public class Table {
                 buffer.append(" ");
             }
 
+            if (column.getUnique()) {
+                buffer.append("UNIQUE");
+                buffer.append(" ");
+            }
+
             // check if there's more columns in the stack
             if (index != (columns.size() - 1)) {
                 buffer.append(",");

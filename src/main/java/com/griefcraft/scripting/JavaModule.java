@@ -16,6 +16,7 @@ import com.griefcraft.scripting.event.LWCSendLocaleEvent;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -127,6 +128,11 @@ public abstract class JavaModule implements Module {
 
     @Deprecated
     public Result onRegisterProtection(LWC lwc, Player player, Block block) {
+        return DEFAULT;
+    }
+
+    @Deprecated
+    public Result onRegisterProtection(LWC lwc, Player player, Minecart minecart) {
         return DEFAULT;
     }
 

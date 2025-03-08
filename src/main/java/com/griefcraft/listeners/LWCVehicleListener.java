@@ -2,17 +2,18 @@ package com.griefcraft.listeners;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.lwc.LWCPlugin;
+import com.griefcraft.util.MinecartEventProcessor;
 import org.bukkit.Material;
 import org.bukkit.entity.StorageMinecart;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleListener;
-import static com.griefcraft.util.MinecartEventProcessor.addToEventQueue;
 
 public class LWCVehicleListener extends VehicleListener {
-
     private LWCPlugin plugin;
+    private MinecartEventProcessor minecartEventProcessor;
     public LWCVehicleListener(LWCPlugin plugin) {
         this.plugin = plugin;
+        this.minecartEventProcessor = MinecartEventProcessor.getInstance();
     }
 
     @Override
@@ -38,6 +39,6 @@ public class LWCVehicleListener extends VehicleListener {
             return;
         }
 
-        addToEventQueue(event);
+        minecartEventProcessor.addToEventQueue(event);
     }
 }

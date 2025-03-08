@@ -16,6 +16,7 @@ import com.griefcraft.scripting.event.LWCSendLocaleEvent;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -216,6 +217,17 @@ public interface Module {
      */
     @Deprecated
     public Result onRegisterProtection(LWC lwc, Player player, Block block);
+
+    /**
+     * Called just before a protection registration is finalized, after all post-checks are passed.
+     *
+     * @param lwc
+     * @param player
+     * @param minecart
+     * @return
+     */
+    @Deprecated
+    public Result onRegisterProtection(LWC lwc, Player player, Minecart minecart);
 
     /**
      * Called after a protection is registered

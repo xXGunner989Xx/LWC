@@ -35,6 +35,8 @@ public class Column {
      */
     private String defaultValue;
 
+    private boolean unique;
+
     public Column(String name) {
         this.name = name;
     }
@@ -45,6 +47,10 @@ public class Column {
 
     public String getDefaultValue() {
         return defaultValue == null ? "" : defaultValue;
+    }
+
+    public boolean getUnique() {
+        return unique;
     }
 
     public String getType() {
@@ -61,6 +67,10 @@ public class Column {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public void setUnique(boolean unique) {
+        this.unique = unique;
     }
 
     public void setPrimary(boolean primary) {
